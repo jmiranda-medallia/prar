@@ -1,8 +1,10 @@
 const { onPullRequestOpen } = require("./github-webhooks/github-webhooks-helper");
 
-const { WebClient } = require('@slack/web-api')
+
 const { createEventAdapter } = require('@slack/events-api')
-const { Webhooks, createNodeMiddleware } = require("@octokit/webhooks");
+const { Webhooks } = require("@octokit/webhooks");
+const { SlackClient } = require('./SlackClient')
+
 const webhooks = new Webhooks({
   secret: "secret",
 });
@@ -24,16 +26,15 @@ source.onmessage = (event) => {
 };
 
 const SLACK_SIGNIN_SECRET = 'ea647b5552da8350c35a5eeba95a6d57'
-const SLACK_TOKEN = 'xoxb-2656378355189-2656453504917-B1EHCD3svvSn4qaQ8A9QDbSC'
 const PORT = 1234
 const slackEvents = createEventAdapter(SLACK_SIGNIN_SECRET)
-const slackClient = new WebClient(SLACK_TOKEN)
-
+const slack = SlackClient.getInstance()
+console.log({ slack })
 slackEvents.on('app_mention', (event) => {
   console.log(`Got message from user ${event.user}: ${event.text}`);
   (async () => {
     try {
-      await slackClient.chat.postMessage({ channel: event.channel, text: `Miau <@${event.user}>! :tada:` })
+      await slack.chat.postMessage({ channel: event.channel, text: `Miau <@${event.user}>! :tada:` })
     } catch (error) {
       console.log(error.data)
     }
@@ -51,7 +52,7 @@ webhooks.on('pull_request.opened', onPullRequestOpen);
 webhooks.onAny(async ({ id, name, payload }) => {
   const { pull_request } = payload;
   try {
-    await slackClient.chat.postMessage({ channel: 'C02KRULNWHX', text: `Miau :tada:` })
+    await slack.chat.postMessage({ channel: 'C02KRULNWHX', text: `Miau :tada:` })
   } catch (error) {
     console.log(error.data)
   }
