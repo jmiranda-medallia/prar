@@ -56,7 +56,6 @@ const reviewersMap = {
 
 const sendNeedsReview = (pull_request) => {
   pull_request.requested_reviewers.forEach( reviewer => {
-    console.log(reviewer);
     console.log('SEND TO CHANNEL: ', reviewersMap[reviewersMap.login]);
   });
 }
@@ -86,11 +85,8 @@ const onPullRequestOpen = ({id, payload}) => {
 }
 
 const onLabelChange = ({id, payload}) => {
-  const { pull_request } = payload;
-  pull_request.labels.forEach( label => {
-    labelsActions[label.name].action(pull_request)
-  });
-
+  const { label, pull_request } = payload;
+  labelsActions[label.name].action(pull_request);
 }
 
 const onReviewSubmitted = ({id, payload}) => {
@@ -109,6 +105,6 @@ const onCommentedReview = ({id, payload}) => {
 
 webhooks.on('pull_request.opened', onPullRequestOpen);
 webhooks.on('pull_request.reopened', onPullRequestOpen);
-webhooks.on('pull_request.labeled', onLabelChange); //TODO gotta think this one a bit more
+webhooks.on('pull_request.labeled', onLabelChange); 
 webhooks.on('pull_request_review.submitted', onReviewSubmitted);
 webhooks.on('pull_request_review_comment.created', onCommentedReview);
