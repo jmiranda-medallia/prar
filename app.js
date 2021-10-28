@@ -9,7 +9,7 @@ const webhooks = new Webhooks({
 
 const EventSource = require('eventsource')
 
-const webhookProxyUrl = "https://smee.io/Vm8Pj1L3eTLpGKi5"; // replace with your own Webhook Proxy URL
+const webhookProxyUrl = "https://smee.io/ocfDXep8EE4GS1PH"; // replace with your own Webhook Proxy URL
 const source = new EventSource(webhookProxyUrl);
 source.onmessage = (event) => {
   const webhookEvent = JSON.parse(event.data);
@@ -46,7 +46,7 @@ slackEvents.start(PORT).then(() => {
   console.log(`Server started on port ${PORT}.`)
 })
 
-webhooks.on('pull_request.opened' | 'pull_request.reopened', onPullRequestOpen);
+webhooks.on('pull_request.opened', onPullRequestOpen);
 
 webhooks.onAny(({ id, name, payload }) => {
   const { pull_request } = payload;
