@@ -9,7 +9,7 @@ const webhooks = new Webhooks({
 
 const EventSource = require('eventsource')
 
-const webhookProxyUrl = "https://smee.io/Vm8Pj1L3eTLpGKi5"; // replace with your own Webhook Proxy URL
+const webhookProxyUrl = "https://smee.io/ocfDXep8EE4GS1PH"; // replace with your own Webhook Proxy URL
 const source = new EventSource(webhookProxyUrl);
 source.onmessage = (event) => {
   const webhookEvent = JSON.parse(event.data);
@@ -24,7 +24,7 @@ source.onmessage = (event) => {
 };
 
 const SLACK_SIGNIN_SECRET = 'ea647b5552da8350c35a5eeba95a6d57'
-const SLACK_TOKEN = 'xoxb-2656378355189-2656453504917-878a7YBigTQ6XHx3ZEwRxVDL'
+const SLACK_TOKEN = 'xoxb-2656378355189-2656453504917-v6WMHKnPcYDxowQtIGRHdHUR'
 const PORT = 1234
 const slackEvents = createEventAdapter(SLACK_SIGNIN_SECRET)
 const slackClient = new WebClient(SLACK_TOKEN)
@@ -48,9 +48,13 @@ slackEvents.start(PORT).then(() => {
 
 webhooks.on('pull_request.opened' | 'pull_request.reopened', onPullRequestOpen);
 
-webhooks.onAny(({ id, name, payload }) => {
+webhooks.onAny(async ({ id, name, payload }) => {
   const { pull_request } = payload;
-
+  try {
+    await slackClient.chat.postMessage({ channel: 'C02KRULNWHX', text: `Miau :tada:` })
+  } catch (error) {
+    console.log(error.data)
+  }
   console.log('URL: ', pull_request.url);
   console.log("STATE: ", pull_request.state);
   console.log("DESCRIPTION: ", pull_request.body);
