@@ -1,4 +1,4 @@
-import { onPullRequestOpen } from "./github-webhooks/github-webhooks-helper";
+const { onPullRequestOpen } = require("./github-webhooks/github-webhooks-helper");
 
 const { WebClient } = require('@slack/web-api')
 const { createEventAdapter } = require('@slack/events-api')
@@ -24,7 +24,7 @@ source.onmessage = (event) => {
 };
 
 const SLACK_SIGNIN_SECRET = 'ea647b5552da8350c35a5eeba95a6d57'
-const SLACK_TOKEN = 'xoxb-2656378355189-2656453504917-Zb6YSKnS1qSRB25lG3AIOWk5'
+const SLACK_TOKEN = 'xoxb-2656378355189-2656453504917-878a7YBigTQ6XHx3ZEwRxVDL'
 const PORT = 1234
 const slackEvents = createEventAdapter(SLACK_SIGNIN_SECRET)
 const slackClient = new WebClient(SLACK_TOKEN)
@@ -49,16 +49,16 @@ slackEvents.start(PORT).then(() => {
 webhooks.on('pull_request.opened' | 'pull_request.reopened', onPullRequestOpen);
 
 webhooks.onAny(({ id, name, payload }) => {
-  const {pull_request} = payload;
+  const { pull_request } = payload;
 
-    console.log('URL: ',pull_request.url);
-    console.log("STATE: ", pull_request.state);
-    console.log("DESCRIPTION: ", pull_request.body);
-    console.log("requested reviewers: ", pull_request.requested_reviewers);
-    pull_request.labels.forEach(label => {
-        console.log('LABEL: ', label.name)
-        if(label.name === 'Needs Review' && pull_request.requested_reviewers.length > 0){
-            console.log("READY FOR REVIEW -> ping in channel")
-        }
-    });
+  console.log('URL: ', pull_request.url);
+  console.log("STATE: ", pull_request.state);
+  console.log("DESCRIPTION: ", pull_request.body);
+  console.log("requested reviewers: ", pull_request.requested_reviewers);
+  pull_request.labels.forEach(label => {
+    console.log('LABEL: ', label.name)
+    if (label.name === 'Needs Review' && pull_request.requested_reviewers.length > 0) {
+      console.log("READY FOR REVIEW -> ping in channel")
+    }
+  });
 });
