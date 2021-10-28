@@ -46,7 +46,7 @@ slackEvents.start(PORT).then(() => {
   console.log(`Server started on port ${PORT}.`)
 })
 
-webhooks.on('pull_request.opened' | 'pull_request.reopened', onPullRequestOpen);
+webhooks.on('pull_request.opened', onPullRequestOpen);
 
 webhooks.onAny(async ({ id, name, payload }) => {
   const { pull_request } = payload;
