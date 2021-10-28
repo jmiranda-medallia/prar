@@ -24,7 +24,7 @@ source.onmessage = (event) => {
 };
 
 const SLACK_SIGNIN_SECRET = 'ea647b5552da8350c35a5eeba95a6d57'
-const SLACK_TOKEN = 'xoxb-2656378355189-2656453504917-v6WMHKnPcYDxowQtIGRHdHUR'
+const SLACK_TOKEN = 'xoxb-2656378355189-2656453504917-B1EHCD3svvSn4qaQ8A9QDbSC'
 const PORT = 1234
 const slackEvents = createEventAdapter(SLACK_SIGNIN_SECRET)
 const slackClient = new WebClient(SLACK_TOKEN)
