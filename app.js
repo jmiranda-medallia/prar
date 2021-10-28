@@ -1,4 +1,5 @@
-const { onPullRequestOpen } = require("./github-webhooks/github-webhooks-helper");
+// const { onPullRequestOpen } = require("./github-webhooks/github-webhooks-helper");
+const { NEEDS_REVIEW } = require("./github-webhooks/constants");
 
 const { WebClient } = require('@slack/web-api')
 const { createEventAdapter } = require('@slack/events-api')
@@ -46,19 +47,68 @@ slackEvents.start(PORT).then(() => {
   console.log(`Server started on port ${PORT}.`)
 })
 
-webhooks.on('pull_request.opened', onPullRequestOpen);
+const NEEDS_REVIEW_LABEL = 'Needs Review'
+const READY_FOR_MERGE_LABEL = 'Ready for Merge'
 
-webhooks.onAny(({ id, name, payload }) => {
-  const { pull_request } = payload;
+const reviewersMap = {
+  'jmiranda-medallia': 'slack channel name'
+}
 
-  console.log('URL: ', pull_request.url);
-  console.log("STATE: ", pull_request.state);
-  console.log("DESCRIPTION: ", pull_request.body);
-  console.log("requested reviewers: ", pull_request.requested_reviewers);
-  pull_request.labels.forEach(label => {
-    console.log('LABEL: ', label.name)
-    if (label.name === 'Needs Review' && pull_request.requested_reviewers.length > 0) {
-      console.log("READY FOR REVIEW -> ping in channel")
-    }
+const sendNeedsReview = (pull_request) => {
+  pull_request.requested_reviewers.forEach( reviewer => {
+    console.log(reviewer);
+    console.log('SEND TO CHANNEL: ', reviewersMap[reviewersMap.login]);
   });
-});
+}
+
+const readyForMerge = (pull_request) => {
+  const jira_link = pull_request.body.split('Jira link:')[1].trim();
+  console.log('ask time spent on ticket', jira_link);
+  console.log('complete that info in ticket and move to done');
+}
+
+const labelsActions = {
+  [NEEDS_REVIEW_LABEL]: {
+    action: sendNeedsReview
+  },
+  [READY_FOR_MERGE_LABEL]: {
+    action: readyForMerge
+  } 
+}
+
+const labelExists = (labels,labelName) => labels.filter(label => label.name === labelName).length > 0;
+
+const onPullRequestOpen = ({id, payload}) => {
+  const { pull_request } = payload;
+  if (labelExists(pull_request.labels, NEEDS_REVIEW_LABEL)) {
+    labelsActions[NEEDS_REVIEW_LABEL].action(pull_request.requested_reviewers);
+  }
+}
+
+const onLabelChange = ({id, payload}) => {
+  const { pull_request } = payload;
+  pull_request.labels.forEach( label => {
+    labelsActions[label.name].action(pull_request)
+  });
+
+}
+
+const onReviewSubmitted = ({id, payload}) => {
+  // console.log(payload);
+  const {review} = payload
+  console.log('Review submitted by ', review.user.login);
+  console.log("Review content: ", review.body);
+  console.log("commit id: ", review.commit_id)
+}
+
+const onCommentedReview = ({id, payload}) => {
+  const {comment} = payload
+  console.log("comment on ", comment.html_url);
+  console.log('comment by ', comment.user.login);
+}
+
+webhooks.on('pull_request.opened', onPullRequestOpen);
+webhooks.on('pull_request.reopened', onPullRequestOpen);
+webhooks.on('pull_request.labeled', onLabelChange); //TODO gotta think this one a bit more
+webhooks.on('pull_request_review.submitted', onReviewSubmitted);
+webhooks.on('pull_request_review_comment.created', onCommentedReview);
