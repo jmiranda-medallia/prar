@@ -9,7 +9,7 @@ const webhooks = new Webhooks({
 
 const EventSource = require('eventsource')
 
-const webhookProxyUrl = "https://smee.io/Vm8Pj1L3eTLpGKi5"; // replace with your own Webhook Proxy URL
+const webhookProxyUrl = "https://smee.io/ocfDXep8EE4GS1PH"; // replace with your own Webhook Proxy URL
 const source = new EventSource(webhookProxyUrl);
 source.onmessage = (event) => {
   const webhookEvent = JSON.parse(event.data);
